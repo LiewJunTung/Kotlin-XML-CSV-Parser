@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/asxmlcsv.iml" filepath="$PROJECT_DIR$/.idea/modules/asxmlcsv.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/asxmlcsv_main.iml" filepath="$PROJECT_DIR$/.idea/modules/asxmlcsv_main.iml" group="asxmlcsv" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/asxmlcsv_test.iml" filepath="$PROJECT_DIR$/.idea/modules/asxmlcsv_test.iml" group="asxmlcsv" />
+    </modules>
+  </component>
+</project>
