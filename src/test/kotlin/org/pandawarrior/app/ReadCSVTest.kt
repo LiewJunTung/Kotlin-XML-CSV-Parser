@@ -26,13 +26,11 @@ package org.pandawarrior.app
 
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.io.StringReader
+import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.LinkedHashMap
-
 
 
 /**
@@ -53,6 +51,8 @@ class ReadCSVTest {
         val headerList = CopyOnWriteArrayList<Map<String, Int>>()
         val csvInputList = CopyOnWriteArrayList<Map<String, String>>()
         headerList.add(headerMap)
+        println(Arrays.toString(headerMap.keys.toTypedArray()))
+
         for (record in csvRecords){
             val inputMap = LinkedHashMap<String, String>()
             for (header in headerMap.entries) {
@@ -63,5 +63,26 @@ class ReadCSVTest {
             }
         }
         csvInputList.forEach(System.out::println)
+    }
+
+    @Test
+    @DisplayName("Write into SQLite database")
+    fun writeToSQL(){
+        val format = CSVFormat.newFormat(',').withHeader()
+        val reader = StringReader(CSV)
+        val csvParser = CSVParser(reader, format)
+        val csvRecords = csvParser.records
+        val headerMap = csvParser.headerMap
+        val csvInputList = CopyOnWriteArrayList<Map<String, String>>()
+        for (record in csvRecords){
+            val inputMap = LinkedHashMap<String, String>()
+            for (header in headerMap.entries) {
+                inputMap.put(header.key, record.get(header.value))
+            }
+            if (!inputMap.isEmpty()) {
+                csvInputList.add(inputMap)
+            }
+        }
+        writeFromCSV("", headerMap.keys.toTypedArray(), csvInputList)
     }
 }

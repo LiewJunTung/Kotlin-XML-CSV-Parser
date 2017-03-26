@@ -41,6 +41,7 @@ class ReadXMLTest {
     val XML_RESOURCES_SAMPLE = """<resources>
     <string translatable="true" name="text_dog">Dog</string>
     <string name="text_cat">Cat</string>
+    <string name="text_pig">Pig</string>
     </resources>"""
 
 
@@ -85,12 +86,11 @@ class ReadXMLTest {
             val jaxbUnmarchaller = jaxbContext.createUnmarshaller()
             val reader = StringReader(XML_RESOURCES_SAMPLE)
             val aResources = jaxbUnmarchaller.unmarshal(reader) as AResounce
-            assertEquals(2, aResources.aStringList?.size)
+            assertEquals(3, aResources.aStringList?.size)
 
             val dogString:AString? = aResources.aStringList?.get(0)
             assertEquals("text_dog", dogString?.name)
             assertEquals("Dog", dogString?.text)
-            assertTrue(false)
 
             val catString:AString? = aResources.aStringList?.get(1)
             assertEquals("text_cat", catString?.name)
@@ -100,6 +100,9 @@ class ReadXMLTest {
             if (catString != null){
                 assertNull(catString.translatable)
             }
+            val headers:Array<String> = arrayOf("value")
+            writeFromXML("", headers.get(0), aResources.aStringList)
         }
+
     }
 }

@@ -22,7 +22,14 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.apache.commons:commons-csv:1.4"
+    compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.7.2'
     testCompile("org.junit.jupiter:junit-jupiter-api:5.0.0-M3")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:5.0.0-M3")
     testCompile("org.junit.platform:junit-platform-launcher:1.0.0-M3")
+}
+compileTestKotlin {
+    kotlinOptions {
+        languageVersion = "1.1"
+        apiVersion = "1.1"
+    }
 }
