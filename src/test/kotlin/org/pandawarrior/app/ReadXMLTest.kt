@@ -101,8 +101,14 @@ class ReadXMLTest {
                 assertNull(catString.translatable)
             }
             val headers:Array<String> = arrayOf("value")
-            writeFromXML("", headers.get(0), aResources.aStringList)
+//            writeFromXML("", headers.get(0), aResources.aStringList)
         }
 
+        @Test
+        @DisplayName("run read XML Folders")
+        fun readXmlFolder() {
+            val list = getHeadersFromDirectory()
+            xmlToDatabase("focus", list, "string.xml")
+        }
     }
 }
