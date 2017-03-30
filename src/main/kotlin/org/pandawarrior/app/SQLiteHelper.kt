@@ -1,10 +1,18 @@
 package org.pandawarrior.app
 
+import org.apache.commons.csv.CSVFormat
+import org.apache.commons.csv.CSVParser
+import org.apache.commons.csv.CSVRecord
+import java.io.StringReader
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
 import java.sql.Statement
 import java.util.concurrent.CopyOnWriteArrayList
+import java.io.FileReader
+import java.io.Reader
+
+
 
 
 
@@ -20,6 +28,7 @@ inline fun lock(dbName: String, body: (statement:Statement)-> Unit) {
     try {
         connection = DriverManager.getConnection("jdbc:sqlite:${dbName}")
         val statement = connection.createStatement()
+        statement.setQueryTimeout(30)
         body(statement)
         val rs = statement.executeQuery("select * from translation")
         while(rs.next())
@@ -46,18 +55,9 @@ inline fun lock(dbName: String, body: (statement:Statement)-> Unit) {
     }
 }
 
-fun writeFromCSV(dbName: String = "", headers: Array<String>, csvInputList: CopyOnWriteArrayList<Map<String, String>>) {
+fun resetDatabase(dbName: String = ""){
     lock(dbName) { statement ->
-        val createHeaderString = headers.joinToString { "${it} string" }.replace('-', '_')
-        val headerString = headers.joinToString { it }.replace('-', '_')
-        statement.setQueryTimeout(30)  // set timeout to 30 sec.
         statement.executeUpdate("drop table if exists `translation`")
-        statement.executeUpdate("create table `translation` (${createHeaderString})")
-        csvInputList.forEach {
-            val values = it.values.joinToString { "\"${it}\"" }
-            println("insert into person (${headerString}) values(${values})")
-            statement.executeUpdate("insert into translation (${headerString}) values(${values})")
-        }
     }
 }
 

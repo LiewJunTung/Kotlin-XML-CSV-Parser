@@ -1,0 +1,4 @@
+name,translatable,value,value-zh-CN,value-my
+text_dog,true,Dog Dog,狗,anjing
+text_cat,true,Cat,,kucing
+text_jeab,true,Chicken,鸡,ayam

@@ -87,4 +87,17 @@ class WriteXMLTest {
             assertEquals(XML_RESOURCES_SAMPLE.replace("\n", "").trim(), writer.toString())
         }
     }
+
+    @Nested
+    @DisplayName("Test write a xml file from DB")
+    inner class testWriteXMLFile {
+        @Test
+        fun writeFile(){
+            val headers = csvToDatabase("test.csv")
+            if (headers == null){
+                throw Exception("Invalid headers")
+            }
+            databaseToXML(headers)
+        }
+    }
 }

@@ -26,6 +26,7 @@ package org.pandawarrior.app
 
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
+import org.apache.commons.csv.CSVRecord
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.io.StringReader
@@ -71,18 +72,22 @@ class ReadCSVTest {
         val format = CSVFormat.newFormat(',').withHeader()
         val reader = StringReader(CSV)
         val csvParser = CSVParser(reader, format)
-        val csvRecords = csvParser.records
         val headerMap = csvParser.headerMap
-        val csvInputList = CopyOnWriteArrayList<Map<String, String>>()
-        for (record in csvRecords){
-            val inputMap = LinkedHashMap<String, String>()
-            for (header in headerMap.entries) {
-                inputMap.put(header.key, record.get(header.value))
-            }
-            if (!inputMap.isEmpty()) {
-                csvInputList.add(inputMap)
+        //create database
+
+        //save record line by line
+        lock("translation") { statement ->
+            val createHeaderString = headerMap.keys.joinToString { "${it} string" }.replace('-', '_')
+            val headerString = headerMap.keys.joinToString { it }.replace('-', '_')
+            statement.executeUpdate("drop table if exists `translation`")
+            statement.executeUpdate("create table `translation` (${createHeaderString})")
+
+            for (record:CSVRecord in csvParser){
+                val values = headerMap.values.map {
+                    record.get(it)
+                }.joinToString {"\"${it}\""}
+                statement.executeUpdate("insert into translation (${headerString}) values(${values})")
             }
         }
-        writeFromCSV("", headerMap.keys.toTypedArray(), csvInputList)
     }
 }
