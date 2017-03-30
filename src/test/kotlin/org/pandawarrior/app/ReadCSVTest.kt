@@ -76,7 +76,7 @@ class ReadCSVTest {
         //create database
 
         //save record line by line
-        lock("translation") { statement ->
+        lock("translation") { statement, connection ->
             val createHeaderString = headerMap.keys.joinToString { "${it} string" }.replace('-', '_')
             val headerString = headerMap.keys.joinToString { it }.replace('-', '_')
             statement.executeUpdate("drop table if exists `translation`")

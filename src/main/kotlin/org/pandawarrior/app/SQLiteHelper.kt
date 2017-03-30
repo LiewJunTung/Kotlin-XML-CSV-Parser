@@ -21,7 +21,7 @@ import java.io.Reader
  * Created by pandawarrior91 on 26/03/2017.
  */
 
-inline fun lock(dbName: String, body: (statement:Statement)-> Unit) {
+inline fun lock(dbName: String, body: (statement: Statement, connection: Connection) -> Unit) {
     // ...
     Class.forName("org.sqlite.JDBC")
     var connection: Connection? = null
@@ -29,7 +29,7 @@ inline fun lock(dbName: String, body: (statement:Statement)-> Unit) {
         connection = DriverManager.getConnection("jdbc:sqlite:${dbName}")
         val statement = connection.createStatement()
         statement.setQueryTimeout(30)
-        body(statement)
+        body(statement, connection)
         val rs = statement.executeQuery("select * from translation")
         while(rs.next())
         {
@@ -56,13 +56,13 @@ inline fun lock(dbName: String, body: (statement:Statement)-> Unit) {
 }
 
 fun resetDatabase(dbName: String = ""){
-    lock(dbName) { statement ->
+    lock(dbName) { statement, connection ->
         statement.executeUpdate("drop table if exists `translation`")
     }
 }
 
 fun writeFromXML(dbName: String = "", currentHeader: String, data: List<AString>?){
-    lock(dbName) { statement ->
+    lock(dbName) { statement, connection ->
         statement.setQueryTimeout(30)  // set timeout to 30 sec.
         data?.forEach {
             val translatable =

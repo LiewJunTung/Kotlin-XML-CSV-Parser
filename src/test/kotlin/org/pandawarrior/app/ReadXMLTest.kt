@@ -109,6 +109,7 @@ class ReadXMLTest {
         fun readXmlFolder() {
             val list = getHeadersFromDirectory()
             xmlToDatabase("focus", list, "string.xml")
+            databaseToCSV("focus", list, "strings.csv")
         }
     }
 }

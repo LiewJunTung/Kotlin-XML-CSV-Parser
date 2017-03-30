@@ -24,7 +24,7 @@ fun csvToDatabase(path: String): List<String>? {
         val headerList = headerMap.keys
         //save record line by line
         !checkHeader(headerList.toList())
-        lock("focus") { statement ->
+    lock("focus") { statement, connection ->
             val createHeaderString = headerList.joinToString { "${it} string" }.replace('-', '_')
 
             val headerString = headerList.joinToString { it }.replace('-', '_')
@@ -32,10 +32,17 @@ fun csvToDatabase(path: String): List<String>? {
             statement.executeUpdate("create table `translation` (${createHeaderString})")
 
             for (record: CSVRecord in csvParser) {
-                val values = headerMap.values.map {
+                val hValues = headerMap.values.map {
                     record.get(it)
-                }.joinToString { "\"${it}\"" }
-                statement.executeUpdate("insert into translation (${headerString}) values(${values})")
+                }
+                val pholder = hValues.map {
+                    "?"
+                }.joinToString { it }
+                val stmt = connection.prepareStatement("insert into translation (${headerString}) values($pholder)")
+                for ((index, value) in hValues.withIndex()) {
+                    stmt.setString(index + 1, value)
+                }
+                stmt.executeUpdate()
             }
         }
         return headerList.toList().subList(2, headerList.toList().lastIndex + 1)
@@ -59,7 +66,7 @@ fun checkHeader(headerList: List<String>): Boolean {
 
 fun databaseToXML(headerList: List<String>) {
 
-    lock("focus") { statement ->
+    lock("focus") { statement, connection ->
         for (header in headerList) {
             val head = header.replace('-', '_')
             val cursor = statement.executeQuery("select name, translatable, ${head} from translation")
