@@ -1,0 +1,10 @@
+name,quantity,value,value-es
+text_dogs,zero,no dog,no perro
+text_dogs,one,one dog,uno perro
+text_dogs,many,%d dogs,%d perros
+text_cats,zero,no cat,no gato
+text_cats,one,one cat,uno gato
+text_cats,many,%d cats,%d gatos
+text_guys,zero,no guy,no hombre
+text_guys,one,one guy,uno hombre
+text_guys,many,%d guys,%d hombres

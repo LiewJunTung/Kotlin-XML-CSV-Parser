@@ -1,3 +1,4 @@
+
 /*
  * MIT License
  *
@@ -30,8 +31,14 @@ import javax.xml.bind.annotation.XmlRootElement
 import javax.xml.bind.annotation.XmlValue
 
 /**
- * Created by jtlie on 3/14/2017.
+ * Created by jtlie on 3/15/2017.
  */
+@XmlRootElement(name = "resources")
+class AStringResource() {
+    var aStringList: List<AString>? = null
+        @XmlElement(name = "string") set
+}
+
 @XmlRootElement(name = "string")
 class AString() {
 

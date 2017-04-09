@@ -28,6 +28,7 @@ import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
 import org.apache.commons.csv.CSVRecord
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.io.StringReader
 import java.util.*
@@ -40,53 +41,116 @@ import java.util.concurrent.CopyOnWriteArrayList
 class ReadCSVTest {
     val CSV = "name,translatable,value,value-zh_CN\n" +
             "text_dog,true,Dog,狗\n" +
-            "text_cat,true,Cat,猫"
+            "text_cat,true,\"Cat ,Cat\",猫"
 
-    @Test
-    fun readCSV() {
-        val format = CSVFormat.newFormat(',').withHeader()
-        val reader = StringReader(CSV)
-        val csvParser = CSVParser(reader, format)
-        val csvRecords = csvParser.records
-        val headerMap = csvParser.headerMap
-        val headerList = CopyOnWriteArrayList<Map<String, Int>>()
-        val csvInputList = CopyOnWriteArrayList<Map<String, String>>()
-        headerList.add(headerMap)
-        println(Arrays.toString(headerMap.keys.toTypedArray()))
+    val PLURAL = "name,quantity,value,value-es\n" +
+            "text_dogs,zero,no dog,no perro\n" +
+            "text_dogs,one,one dog,uno perro\n" +
+            "text_dogs,many,%d dogs,%d perros"
 
-        for (record in csvRecords){
-            val inputMap = LinkedHashMap<String, String>()
-            for (header in headerMap.entries) {
-                inputMap.put(header.key, record.get(header.value))
+    @Nested
+    @DisplayName("test a string resources")
+    inner class StringTest {
+        @Test
+        fun readCSV() {
+            val format = CSVFormat.DEFAULT.withHeader().withHeader()
+            val reader = StringReader(CSV)
+            val csvParser = CSVParser(reader, format)
+            val csvRecords = csvParser.records
+            val headerMap = csvParser.headerMap
+            val headerList = CopyOnWriteArrayList<Map<String, Int>>()
+            val csvInputList = CopyOnWriteArrayList<Map<String, String>>()
+            headerList.add(headerMap)
+            // println(Arrays.toString(headerMap.keys.toTypedArray()))
+
+            for (record in csvRecords) {
+                val inputMap = LinkedHashMap<String, String>()
+                for (header in headerMap.entries) {
+                    inputMap.put(header.key, record.get(header.value))
+                }
+                if (!inputMap.isEmpty()) {
+                    csvInputList.add(inputMap)
+                }
             }
-            if (!inputMap.isEmpty()) {
-                csvInputList.add(inputMap)
+            //csvInputList.forEach(System.out::println)
+        }
+
+        @Test
+        @DisplayName("Write into SQLite database")
+        fun writeToSQL() {
+            val format = CSVFormat.newFormat(',').withHeader()
+            val reader = StringReader(CSV)
+            val csvParser = CSVParser(reader, format)
+            val headerMap = csvParser.headerMap
+            //create database
+
+            //save record line by line
+            lock("translation", "translation") { statement, connection ->
+                val createHeaderString = headerMap.keys.joinToString { "${it} string" }.replace('-', '_')
+                val headerString = headerMap.keys.joinToString { it }.replace('-', '_')
+                statement.executeUpdate("drop table if exists `translation`")
+                statement.executeUpdate("create table `translation` (${createHeaderString})")
+
+                for (record: CSVRecord in csvParser) {
+                    val values = headerMap.values.map {
+                        record.get(it)
+                    }.joinToString { "\"${it}\"" }
+                    statement.executeUpdate("insert into translation (${headerString}) values(${values})")
+                }
             }
         }
-        csvInputList.forEach(System.out::println)
     }
 
-    @Test
-    @DisplayName("Write into SQLite database")
-    fun writeToSQL(){
-        val format = CSVFormat.newFormat(',').withHeader()
-        val reader = StringReader(CSV)
-        val csvParser = CSVParser(reader, format)
-        val headerMap = csvParser.headerMap
-        //create database
 
-        //save record line by line
-        lock("translation") { statement, connection ->
-            val createHeaderString = headerMap.keys.joinToString { "${it} string" }.replace('-', '_')
-            val headerString = headerMap.keys.joinToString { it }.replace('-', '_')
-            statement.executeUpdate("drop table if exists `translation`")
-            statement.executeUpdate("create table `translation` (${createHeaderString})")
+    @Nested
+    @DisplayName("test a plural resources")
+    inner class PluralTest {
+        @Test
+        fun readCSV() {
+            val format = CSVFormat.DEFAULT.withHeader().withHeader()
+            val reader = StringReader(PLURAL)
+            val csvParser = CSVParser(reader, format)
+            val csvRecords = csvParser.records
+            val headerMap = csvParser.headerMap
+            val headerList = CopyOnWriteArrayList<Map<String, Int>>()
+            val csvInputList = CopyOnWriteArrayList<Map<String, String>>()
+            headerList.add(headerMap)
+            // println(Arrays.toString(headerMap.keys.toTypedArray()))
 
-            for (record:CSVRecord in csvParser){
-                val values = headerMap.values.map {
-                    record.get(it)
-                }.joinToString {"\"${it}\""}
-                statement.executeUpdate("insert into translation (${headerString}) values(${values})")
+            for (record in csvRecords) {
+                val inputMap = LinkedHashMap<String, String>()
+                for (header in headerMap.entries) {
+                    inputMap.put(header.key, record.get(header.value))
+                }
+                if (!inputMap.isEmpty()) {
+                    csvInputList.add(inputMap)
+                }
+            }
+            // csvInputList.forEach(System.out::println)
+        }
+
+        @Test
+        @DisplayName("Write into SQLite database")
+        fun writeToSQL() {
+            val format = CSVFormat.newFormat(',').withHeader()
+            val reader = StringReader(PLURAL)
+            val csvParser = CSVParser(reader, format)
+            val headerMap = csvParser.headerMap
+            //create database
+
+            //save record line by line
+            lock("translation", "plural_translation") { statement, connection ->
+                val createHeaderString = headerMap.keys.joinToString { "${it} string" }.replace('-', '_')
+                val headerString = headerMap.keys.joinToString { it }.replace('-', '_')
+                statement.executeUpdate("drop table if exists `plural_translation`")
+                statement.executeUpdate("create table `plural_translation` (${createHeaderString})")
+
+                for (record: CSVRecord in csvParser) {
+                    val values = headerMap.values.map {
+                        record.get(it)
+                    }.joinToString { "\"${it}\"" }
+                    statement.executeUpdate("insert into plural_translation (${headerString}) values(${values})")
+                }
             }
         }
     }

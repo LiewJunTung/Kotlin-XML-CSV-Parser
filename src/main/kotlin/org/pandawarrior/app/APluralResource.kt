@@ -25,15 +25,64 @@
 
 package org.pandawarrior.app
 
+import javax.xml.bind.annotation.XmlAttribute
 import javax.xml.bind.annotation.XmlElement
-import javax.xml.bind.annotation.XmlElementWrapper
 import javax.xml.bind.annotation.XmlRootElement
+import javax.xml.bind.annotation.XmlValue
 
 /**
  * Created by jtlie on 3/15/2017.
  */
 @XmlRootElement(name = "resources")
-class AResounce() {
-    var aStringList: List<AString>? = null
-        @XmlElement(name = "string") set
+class APluralResource() {
+    var aPluralList: List<APlural>? = null
+        @XmlElement(name = "plurals") set
+
+    override fun toString(): String {
+        return "APluralResounce(aArrayList=$aPluralList)"
+    }
+
+
 }
+
+@XmlRootElement(name = "plurals")
+class APlural() {
+
+    var name: String = ""
+        @XmlAttribute set
+
+    var aPluralItems: List<APluralItem>? = null
+        @XmlElement(name = "item") set
+
+    override fun toString(): String {
+        return "APlural(name='$name', aPluralItems=$aPluralItems)"
+    }
+
+
+}
+
+@XmlRootElement(name = "item")
+class APluralItem() {
+    var quantity: String = ""
+        @XmlAttribute set
+
+    var text: String = ""
+        @XmlValue set
+
+    override fun toString(): String {
+        return "APluralItem(quantity='$quantity', text='$text')"
+    }
+
+
+}
+/*
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals
+        name="plural_name">
+        <item
+            quantity=["zero" | "one" | "two" | "few" | "many" | "other"]
+            >text_string</item>
+    </plurals>
+</resources>
+ */

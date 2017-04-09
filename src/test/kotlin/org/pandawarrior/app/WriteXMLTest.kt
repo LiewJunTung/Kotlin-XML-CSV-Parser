@@ -24,7 +24,7 @@
 
 package org.pandawarrior.app
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -50,7 +50,7 @@ class WriteXMLTest {
     inner class testWriteStringXML {
         @Test
         @DisplayName("Parse to XML String")
-        fun parseXml(){
+        fun simpleParseXML1() {
             val aString = AString()
             aString.name = "text_dog"
             aString.text = "Dog"
@@ -60,14 +60,10 @@ class WriteXMLTest {
             jaxbMarshaller.marshal(aString, writer)
             assertEquals(XML_STRING_SAMPLE, writer.toString())
         }
-    }
 
-    @Nested
-    @DisplayName("Test Write Resource XML Functionality")
-    inner class testWriteResourcesXML {
         @Test
         @DisplayName("Parse to XML String")
-        fun parseXml(){
+        fun simpleParseXML2() {
             val dogString = AString()
             dogString.name = "text_dog"
             dogString.text = "Dog"
@@ -78,26 +74,48 @@ class WriteXMLTest {
             val stringList = ArrayList<AString>()
             stringList.add(dogString)
             stringList.add(catString)
-            val resources = AResounce()
+            val resources = AStringResource()
             resources.aStringList = stringList
-            val jaxbContext = JAXBContext.newInstance(AResounce::class.java)
+            val jaxbContext = JAXBContext.newInstance(AStringResource::class.java)
             val jaxbMarshaller = jaxbContext.createMarshaller()
             val writer = StringWriter()
             jaxbMarshaller.marshal(resources, writer)
             assertEquals(XML_RESOURCES_SAMPLE.replace("\n", "").trim(), writer.toString())
         }
+
+        @Test
+        fun writeFile() {
+            val headers = stringCsvToDatabase("test.csv")
+            if (headers == null) {
+                throw Exception("Invalid headers")
+            }
+            databaseToStringXML(headers)
+        }
     }
 
     @Nested
-    @DisplayName("Test write a xml file from DB")
-    inner class testWriteXMLFile {
+    @DisplayName("Test Write Plural XML Functionality")
+    inner class testWritePluralXMLFile {
         @Test
         fun writeFile(){
-            val headers = csvToDatabase("test.csv")
+            val headers = pluralsCsvToDatabase("test-plural.csv")
             if (headers == null){
                 throw Exception("Invalid headers")
             }
-            databaseToXML(headers)
+            databaseToPluralXML(headers)
+        }
+    }
+
+    @Nested
+    @DisplayName("Test Write Arrays XML Functionality")
+    inner class testWriteArraysXMLFile {
+        @Test
+        fun writeFile() {
+            val headers = arraysCsvToDatabase("test-array.csv")
+            if (headers == null) {
+                throw Exception("Invalid headers")
+            }
+            databaseToArrayXML(headers)
         }
     }
 }

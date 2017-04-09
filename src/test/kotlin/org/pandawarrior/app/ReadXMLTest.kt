@@ -82,10 +82,10 @@ class ReadXMLTest {
         @Test
         @DisplayName("Parse from XML String")
         fun parseXml(){
-            val jaxbContext = JAXBContext.newInstance(AResounce::class.java)
+            val jaxbContext = JAXBContext.newInstance(AStringResource::class.java)
             val jaxbUnmarchaller = jaxbContext.createUnmarshaller()
             val reader = StringReader(XML_RESOURCES_SAMPLE)
-            val aResources = jaxbUnmarchaller.unmarshal(reader) as AResounce
+            val aResources = jaxbUnmarchaller.unmarshal(reader) as AStringResource
             assertEquals(3, aResources.aStringList?.size)
 
             val dogString:AString? = aResources.aStringList?.get(0)
@@ -108,8 +108,8 @@ class ReadXMLTest {
         @DisplayName("run read XML Folders")
         fun readXmlFolder() {
             val list = getHeadersFromDirectory()
-            xmlToDatabase("focus", list, "string.xml")
-            databaseToCSV("focus", list, "strings.csv")
+            stringXmlToDatabase(list, "string.xml")
+            databaseToCSV(list, "strings.csv")
         }
     }
 }

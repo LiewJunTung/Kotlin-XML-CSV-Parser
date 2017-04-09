@@ -1,13 +1,12 @@
 package org.pandawarrior.app
 
+import org.apache.commons.csv.CSVFormat
+import org.apache.commons.csv.CSVPrinter
 import java.io.File
-import java.io.StringReader
+import java.io.FileWriter
+import java.io.IOException
 import java.nio.file.Paths
 import javax.xml.bind.JAXBContext
-import org.apache.commons.csv.CSVPrinter
-import java.io.FileWriter
-import org.apache.commons.csv.CSVFormat
-import java.io.IOException
 
 
 /**
@@ -26,27 +25,29 @@ fun getHeadersFromDirectory(): ArrayList<String> {
     return lists
 }
 
-fun xmlToDatabase(dbName: String, headers: ArrayList<String>, fileName: String) {
-    lock(dbName) { statement, connection ->
+fun stringXmlToDatabase(headers: ArrayList<String>, fileName: String) {
+    val dbName = "xml_translation"
+    val tableName = "translation"
+    lock(dbName, tableName) { statement, connection ->
         val createHeaderString = headers.joinToString { "${it} string" }.replace('-', '_')
-        statement.executeUpdate("drop table if exists `translation`")
-        statement.executeUpdate("create table `translation` (name string, translatable string, ${createHeaderString})")
+        statement.executeUpdate("drop table if exists `$tableName`")
+        statement.executeUpdate("create table `$tableName` (name string, translatable string, ${createHeaderString})")
         for (header in headers) {
             val file = File("$header${File.separator}$fileName")
-            val jaxbContext = JAXBContext.newInstance(AResounce::class.java)
+            val jaxbContext = JAXBContext.newInstance(AStringResource::class.java)
             val jaxbUnmarchaller = jaxbContext.createUnmarshaller()
-            val aResources = jaxbUnmarchaller.unmarshal(file) as AResounce
+            val aResources = jaxbUnmarchaller.unmarshal(file) as AStringResource
             if (aResources.aStringList == null) {
                 throw Exception("Parsing Error")
             }
             var aStringList: List<AString> = aResources.aStringList!!
             for (aString in aStringList) {
-                val stmt = connection.prepareStatement("UPDATE `translation` SET ${header.replace('-', '_')} = ? WHERE name= ?")
+                val stmt = connection.prepareStatement("UPDATE `$tableName` SET ${header.replace('-', '_')} = ? WHERE name= ?")
                 stmt.setString(1, aString.text)
                 stmt.setString(2, aString.name)
                 val updateCount = stmt.executeUpdate()
                 if (updateCount < 1) {
-                    val stmt = connection.prepareStatement("INSERT INTO `translation` (name, translatable, ${header.replace('-', '_')}) VALUES(?, ?, ?)")
+                    val stmt = connection.prepareStatement("INSERT INTO `$tableName` (name, translatable, ${header.replace('-', '_')}) VALUES(?, ?, ?)")
                     stmt.setString(1, aString.text)
                     stmt.setString(2, aString.translatable)
                     stmt.setString(3, aString.text)
@@ -57,8 +58,26 @@ fun xmlToDatabase(dbName: String, headers: ArrayList<String>, fileName: String) 
     }
 }
 
-fun databaseToCSV(dbName: String, headers: ArrayList<String>, fileName: String) {
-    lock(dbName) { statement, connection ->
+fun pluralXmlToDatabase(headers: ArrayList<String>, fileName: String) {
+    val dbName = "xml_translation"
+    val tableName = "translation"
+    lock(dbName, tableName) { statement, connection ->
+        //TODO
+    }
+}
+
+fun arrayXmlToDatabase(headers: ArrayList<String>, fileName: String) {
+    val dbName = "xml_translation"
+    val tableName = "translation"
+    lock(dbName, tableName) { statement, connection ->
+        //TODO
+    }
+}
+
+fun databaseToCSV(headers: ArrayList<String>, fileName: String) {
+    val dbName = "xml_translation"
+    val tableName = "translation"
+    lock(dbName, tableName) { statement, connection ->
         headers.add(0, "name")
         headers.add(1, "translatable")
         val csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator("\n")
@@ -67,7 +86,7 @@ fun databaseToCSV(dbName: String, headers: ArrayList<String>, fileName: String) 
         val csvFilePrinter = CSVPrinter(fileWriter, csvFileFormat)
         try {
             csvFilePrinter.printRecord(headers)
-            val rs = statement.executeQuery("select * from translation")
+            val rs = statement.executeQuery("select * from $tableName")
             while (rs.next()) {
                 val row = ArrayList<String>()
                 // row.add(rs.getString(rs.findColumn("name")))
