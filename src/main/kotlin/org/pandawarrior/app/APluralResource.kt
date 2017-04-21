@@ -35,7 +35,7 @@ import javax.xml.bind.annotation.XmlValue
  */
 @XmlRootElement(name = "resources")
 class APluralResource() {
-    var aPluralList: List<APlural>? = null
+    var aPluralList: List<APlural> = ArrayList()
         @XmlElement(name = "plurals") set
 
     override fun toString(): String {
@@ -51,7 +51,7 @@ class APlural() {
     var name: String = ""
         @XmlAttribute set
 
-    var aPluralItems: List<APluralItem>? = null
+    var aPluralItems: List<APluralItem> = ArrayList()
         @XmlElement(name = "item") set
 
     override fun toString(): String {

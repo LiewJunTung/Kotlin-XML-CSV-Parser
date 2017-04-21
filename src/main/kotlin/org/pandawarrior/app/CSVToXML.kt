@@ -13,19 +13,19 @@ import javax.xml.bind.Marshaller
  * Created by jtlie on 3/30/2017.
  */
 fun stringCsvToDatabase(path: String): List<String>? {
-    val dbName = "translation"
+    val dbName = "build/xml_translation"
     val tableName = "translation"
     return csvToDatabase(path, dbName, tableName, true)
 }
 
 fun pluralsCsvToDatabase(path: String): List<String>? {
-    val dbName = "translation"
+    val dbName = "build/xml_translation"
     val tableName = "plural_translation"
     return csvToDatabase(path, dbName, tableName, false)
 }
 
 fun arraysCsvToDatabase(path: String): List<String>? {
-    val dbName = "translation"
+    val dbName = "build/xml_translation"
     val tableName = "arrays_translation"
     return csvToDatabase(path, dbName, tableName, false)
 }
@@ -79,7 +79,7 @@ fun checkHeader(headerList: List<String>, isString: Boolean = true): Boolean {
 
 fun databaseToStringXML(headerList: List<String>) {
     val tableName = "translation"
-    val dbName = "translation"
+    val dbName = "build/xml_translation"
     lock(dbName, tableName) { statement, connection ->
         for (header in headerList) {
             val head = header.replace('-', '_')
@@ -124,7 +124,7 @@ fun writeStringResourceXML(aStringResource: AStringResource, folderPath: String,
 // Plurals
 fun databaseToPluralXML(headerList: List<String>) {
     val tableName = "plural_translation"
-    val dbName = "translation"
+    val dbName = "build/xml_translation"
     lock(dbName, tableName) { statement, connection ->
         var name: String = ""
         for (header in headerList) {
@@ -188,7 +188,7 @@ fun writePluralResourceXML(aPluralResource: APluralResource, folderPath: String,
 //Arrays
 fun databaseToArrayXML(headerList: List<String>) {
     val tableName = "arrays_translation"
-    val dbName = "translation"
+    val dbName = "build/xml_translation"
     lock(dbName, tableName) { statement, connection ->
         var name: String = ""
         for (header in headerList) {

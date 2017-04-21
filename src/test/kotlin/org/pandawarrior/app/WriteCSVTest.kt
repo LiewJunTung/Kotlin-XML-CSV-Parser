@@ -31,7 +31,16 @@ import org.junit.jupiter.api.Test
  */
 class WriteCSVTest {
     @Test
-    fun writeCSV() {
+    fun writeArrayCSV() {
+        val list = getHeadersFromDirectory()
+        arrayXmlToDatabase(list)
+        databaseToCSV(list, "build/try-arrays.csv", arrayOf("name"), "arrays_translation")
+    }
 
+    @Test
+    fun writePluralsCSV() {
+        val list = getHeadersFromDirectory()
+        pluralXmlToDatabase(list)
+        databaseToCSV(list, "build/try-plurals.csv", arrayOf("name"), "plurals_translation")
     }
 }

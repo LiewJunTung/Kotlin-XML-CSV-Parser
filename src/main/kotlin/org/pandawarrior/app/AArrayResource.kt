@@ -34,8 +34,8 @@ import javax.xml.bind.annotation.XmlValue
  */
 @XmlRootElement(name = "resources")
 class AArrayResource() {
-    var aArrayList: List<AArray>? = null
-        @XmlElement(name = "plurals") set
+    var aArrayList: List<AArray> = ArrayList()
+        @XmlElement(name = "string-array") set
 
     override fun toString(): String {
         return "APluralResounce(aArrayList=$aArrayList)"
@@ -50,7 +50,7 @@ class AArray() {
     var name: String = ""
         @XmlAttribute set
 
-    var aArrayItem: List<AArrayItem>? = null
+    var aArrayItem: List<AArrayItem> = ArrayList()
         @XmlElement(name = "item") set
 
 
