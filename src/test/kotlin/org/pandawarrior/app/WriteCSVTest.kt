@@ -36,7 +36,7 @@ class WriteCSVTest {
     @DisplayName("run read XML Folders")
     fun readXmlFolder() {
         val list = getHeadersFromDirectory()
-        stringXmlToDatabase(list, "string.xml")
+        stringXmlToDatabase(list)
         databaseToCSV(list, "strings.csv", arrayOf("name", "translatable"), "translation")
     }
 
@@ -52,5 +52,12 @@ class WriteCSVTest {
         val list = getHeadersFromDirectory()
         pluralXmlToDatabase(list)
         databaseToCSV(list, "build/try-plurals.csv", arrayOf("name"), "plurals_translation")
+    }
+
+    @Test
+    fun processWriteCSV(){
+        processXMLToCSV(".", "build", TranslationType.NORMAL)
+        processXMLToCSV(".", "build", TranslationType.ARRAYS)
+        processXMLToCSV(".", "build", TranslationType.PLURALS)
     }
 }

@@ -19,15 +19,18 @@ enum class TranslationType {
 
 fun processXMLToCSV(readPath: String, writePath: String, translationType: TranslationType) {
     val list = getHeadersFromDirectory(readPath)
-    arrayXmlToDatabase(list)
     var tableName = "translation"
     var fileName = "strings.csv"
     if (translationType == TranslationType.ARRAYS) {
+        arrayXmlToDatabase(list)
         tableName = "arrays_translation"
         fileName = "arrays.csv"
     } else if (translationType == TranslationType.PLURALS) {
+        pluralXmlToDatabase(list)
         tableName = "plurals_translation"
         fileName = "plurals.csv"
+    } else {
+        stringXmlToDatabase(list)
     }
     databaseToCSV(list, "$writePath/$fileName.csv", arrayOf("name"), tableName)
 }
@@ -44,7 +47,7 @@ fun getHeadersFromDirectory(path: String = "."): ArrayList<String> {
     return lists
 }
 
-fun stringXmlToDatabase(headers: ArrayList<String>, fileName: String) {
+fun stringXmlToDatabase(headers: ArrayList<String>) {
     val dbName = "build/xml_translation"
     val tableName = "translation"
     lock(dbName, tableName) { statement, connection ->
@@ -52,10 +55,17 @@ fun stringXmlToDatabase(headers: ArrayList<String>, fileName: String) {
         statement.executeUpdate("drop table if exists `$tableName`")
         statement.executeUpdate("create table `$tableName` (name string, translatable string, ${createHeaderString})")
         for (header in headers) {
-            val file = File("$header${File.separator}$fileName")
-            val jaxbContext = JAXBContext.newInstance(AStringResource::class.java)
-            val jaxbUnmarchaller = jaxbContext.createUnmarshaller()
-            val aResources = jaxbUnmarchaller.unmarshal(file) as AStringResource
+            val file = File("$header${File.separator}string.xml")
+            var aResources:AStringResource
+            if (!file.exists()){
+                aResources = AStringResource()
+                aResources.aStringList = ArrayList()
+            } else {
+                val jaxbContext = JAXBContext.newInstance(AStringResource::class.java)
+                val jaxbUnmarchaller = jaxbContext.createUnmarshaller()
+                aResources = jaxbUnmarchaller.unmarshal(file) as AStringResource
+            }
+
             if (aResources.aStringList == null) {
                 throw Exception("Parsing Error")
             }
@@ -67,7 +77,7 @@ fun stringXmlToDatabase(headers: ArrayList<String>, fileName: String) {
                 val updateCount = stmt.executeUpdate()
                 if (updateCount < 1) {
                     val stmt = connection.prepareStatement("INSERT INTO `$tableName` (name, translatable, ${header.replace('-', '_')}) VALUES(?, ?, ?)")
-                    stmt.setString(1, aString.text)
+                    stmt.setString(1, aString.name)
                     stmt.setString(2, aString.translatable)
                     stmt.setString(3, aString.text)
                     stmt.executeUpdate()
@@ -88,9 +98,15 @@ fun pluralXmlToDatabase(headers: ArrayList<String>) {
         for (header in headers) {
             var base: Int = 0
             val file = File("$header${File.separator}plurals.xml")
-            val jaxbContext = JAXBContext.newInstance(APluralResource::class.java)
-            val jaxbUnmarchaller = jaxbContext.createUnmarshaller()
-            val aResources = jaxbUnmarchaller.unmarshal(file) as APluralResource
+            var aResources:APluralResource
+            if (file.exists()){
+                val jaxbContext = JAXBContext.newInstance(APluralResource::class.java)
+                val jaxbUnmarchaller = jaxbContext.createUnmarshaller()
+                aResources = jaxbUnmarchaller.unmarshal(file) as APluralResource
+            } else {
+                aResources = APluralResource()
+                aResources.aPluralList = ArrayList()
+            }
             var aPluralList: List<APlural> = aResources.aPluralList
             for (aPlural in aPluralList) {
                 for ((index, aPluralItem) in aPlural.aPluralItems.withIndex()) {
@@ -126,9 +142,16 @@ fun arrayXmlToDatabase(headers: ArrayList<String>) {
         for (header in headers) {
             var base: Int = 0
             val file = File("$header${File.separator}arrays.xml")
-            val jaxbContext = JAXBContext.newInstance(AArrayResource::class.java)
-            val jaxbUnmarchaller = jaxbContext.createUnmarshaller()
-            val aResources = jaxbUnmarchaller.unmarshal(file) as AArrayResource
+            var aResources:AArrayResource
+            if (file.exists()){
+                val jaxbContext = JAXBContext.newInstance(AArrayResource::class.java)
+                val jaxbUnmarchaller = jaxbContext.createUnmarshaller()
+                aResources = jaxbUnmarchaller.unmarshal(file) as AArrayResource
+            } else {
+                aResources = AArrayResource()
+                aResources.aArrayList = ArrayList()
+            }
+
             val aArrayList: List<AArray> = aResources.aArrayList
             var tempArrayName = ""
             for (aArray in aArrayList) {
