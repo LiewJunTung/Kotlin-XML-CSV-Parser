@@ -16,21 +16,25 @@ import javax.xml.bind.Marshaller
 
 fun processCSVToXML(readPath: String, writePath: String, translationType: TranslationType) {
     val dbName = "build/xml_translation"
-    val tableName = when (translationType) {
-        TranslationType.NORMAL -> "translation"
-        TranslationType.PLURALS -> "plural_translation"
-        TranslationType.ARRAYS -> "arrays_translation"
-        else -> "translation"
-    }
+    var tableName = "translation"
+    var hasTranslatable = true
+    var isArray = false
     try {
-        val headers = csvToDatabase(readPath, dbName, tableName, true)
-        when (translationType) {
-            TranslationType.NORMAL -> databaseToStringXML(headers)
-            TranslationType.PLURALS -> databaseToPluralXML(headers)
-            TranslationType.ARRAYS -> databaseToArrayXML(headers)
-            else -> databaseToStringXML(headers)
+        if (translationType == TranslationType.ARRAYS){
+            tableName = "arrays_translation"
+            hasTranslatable = false
+            isArray = true
+        } else if (translationType == TranslationType.PLURALS){
+            tableName = "plural_translation"
+            hasTranslatable = false
         }
-        databaseToArrayXML(headers)
+        val headers = csvToDatabase(readPath, dbName, tableName, hasTranslatable, isArray)
+        when (translationType) {
+            TranslationType.NORMAL -> databaseToStringXML(headers, writePath)
+            TranslationType.PLURALS -> databaseToPluralXML(headers, writePath)
+            TranslationType.ARRAYS -> databaseToArrayXML(headers, writePath)
+            else -> databaseToStringXML(headers, writePath)
+        }
     } catch (e: InvalidSourceException) {
         println(e.message)
     }
@@ -39,22 +43,22 @@ fun processCSVToXML(readPath: String, writePath: String, translationType: Transl
 fun stringCsvToDatabase(path: String): List<String>? {
     val dbName = "build/xml_translation"
     val tableName = "translation"
-    return csvToDatabase(path, dbName, tableName, true)
+    return csvToDatabase(path, dbName, tableName, true, false)
 }
 
 fun pluralsCsvToDatabase(path: String): List<String>? {
     val dbName = "build/xml_translation"
     val tableName = "plural_translation"
-    return csvToDatabase(path, dbName, tableName, false)
+    return csvToDatabase(path, dbName, tableName, false, false)
 }
 
 fun arraysCsvToDatabase(path: String): List<String>? {
     val dbName = "build/xml_translation"
     val tableName = "arrays_translation"
-    return csvToDatabase(path, dbName, tableName, false)
+    return csvToDatabase(path, dbName, tableName, false, true)
 }
 
-fun csvToDatabase(path: String, dbName: String, tableName: String, isString: Boolean): List<String> {
+fun csvToDatabase(path: String, dbName: String, tableName: String, isString: Boolean, isArrayTranslation: Boolean): List<String> {
     val fileReader = FileReader(path)
     val format = CSVFormat.DEFAULT.withHeader()
     val csvParser = CSVParser(fileReader, format)
@@ -87,7 +91,11 @@ fun csvToDatabase(path: String, dbName: String, tableName: String, isString: Boo
     } catch (e: ArrayIndexOutOfBoundsException) {
         throw InvalidSourceException("Invalid CSV format, check if there are any incomplete data.")
     }
-    return headerList.toList().subList(1, headerList.toList().lastIndex + 1)
+    var startListIndex = 2
+    if (isArrayTranslation){
+        startListIndex = 1
+    }
+    return headerList.toList().subList(startListIndex, headerList.toList().lastIndex + 1)
 }
 
 fun checkHeader(headerList: List<String>, isString: Boolean = true): Boolean {
@@ -105,17 +113,17 @@ fun checkHeader(headerList: List<String>, isString: Boolean = true): Boolean {
     return false
 }
 
-fun databaseToStringXML(headerList: List<String>) {
+fun databaseToStringXML(headerList: List<String>, writePath: String) {
     val tableName = "translation"
     val dbName = "build/xml_translation"
     lock(dbName, tableName) { statement, connection ->
         for (header in headerList) {
             val head = header.replace('-', '_')
             val cursor = statement.executeQuery("select name, translatable, ${head} from $tableName")
+            println("select name, ${head} from $tableName")
             val resources = AStringResource()
             val stringList = ArrayList<AString>()
             while (cursor.next()) {
-
                 val text = cursor.getString(cursor.findColumn(head))
                 val name = cursor.getString(cursor.findColumn("name"))
                 val translatable = cursor.getString(cursor.findColumn("translatable"))
@@ -130,7 +138,7 @@ fun databaseToStringXML(headerList: List<String>) {
                 }
             }
             resources.aStringList = stringList
-            writeStringResourceXML(resources, header, "$header/string.xml")
+            writeStringResourceXML(resources, "$writePath/$header", "$writePath/$header/string.xml")
         }
     }
 }
@@ -150,7 +158,7 @@ fun writeStringResourceXML(aStringResource: AStringResource, folderPath: String,
 }
 
 // Plurals
-fun databaseToPluralXML(headerList: List<String>) {
+fun databaseToPluralXML(headerList: List<String>, writePath: String) {
     val tableName = "plural_translation"
     val dbName = "build/xml_translation"
     lock(dbName, tableName) { statement, connection ->
@@ -194,7 +202,7 @@ fun databaseToPluralXML(headerList: List<String>) {
 
             resources.aPluralList = pluralList
             //println(resources.toString())
-            writePluralResourceXML(resources, header, "$header/plurals.xml")
+            writePluralResourceXML(resources, "$writePath/$header", "$writePath/$header/plurals.xml")
         }
     }
 }
@@ -214,7 +222,7 @@ fun writePluralResourceXML(aPluralResource: APluralResource, folderPath: String,
 }
 
 //Arrays
-fun databaseToArrayXML(headerList: List<String>) {
+fun databaseToArrayXML(headerList: List<String>, writePath: String) {
     val tableName = "arrays_translation"
     val dbName = "build/xml_translation"
     lock(dbName, tableName) { statement, connection ->
@@ -256,7 +264,7 @@ fun databaseToArrayXML(headerList: List<String>) {
 
             resources.aArrayList = aArrayList
             //println(resources.toString())
-            writeArrayResourceXML(resources, header, "$header/arrays.xml")
+            writeArrayResourceXML(resources, "$writePath/$header", "$writePath/$header/arrays.xml")
         }
     }
 }

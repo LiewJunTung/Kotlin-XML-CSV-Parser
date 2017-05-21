@@ -89,7 +89,7 @@ class WriteXMLTest {
             if (headers == null) {
                 throw Exception("Invalid headers")
             }
-            databaseToStringXML(headers)
+            databaseToStringXML(headers, "build")
         }
     }
 
@@ -102,7 +102,7 @@ class WriteXMLTest {
             if (headers == null) {
                 throw Exception("Invalid headers")
             }
-            databaseToPluralXML(headers)
+            databaseToPluralXML(headers, "build")
         }
     }
 
@@ -116,11 +116,18 @@ class WriteXMLTest {
                 if (headers == null) {
                     throw Exception("Invalid headers")
                 }
-                databaseToArrayXML(headers)
+                databaseToArrayXML(headers, "build")
             } catch (e: InvalidSourceException) {
                 println(e.message)
             }
+        }
 
+        @Test
+        fun writeProcess(){
+            processCSVToXML("./test.csv", "build", TranslationType.NORMAL)
+            processCSVToXML("./test-plural.csv", "build", TranslationType.PLURALS)
+            processCSVToXML("./test-array.csv", "build", TranslationType.ARRAYS)
         }
     }
+
 }
