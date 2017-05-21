@@ -24,12 +24,22 @@
 
 package org.pandawarrior.app
 
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 /**
  * Created by jtlie on 3/15/2017.
  */
 class WriteCSVTest {
+
+    @Test
+    @DisplayName("run read XML Folders")
+    fun readXmlFolder() {
+        val list = getHeadersFromDirectory()
+        stringXmlToDatabase(list, "string.xml")
+        databaseToCSV(list, "strings.csv", arrayOf("name", "translatable"), "translation")
+    }
+
     @Test
     fun writeArrayCSV() {
         val list = getHeadersFromDirectory()

@@ -13,6 +13,22 @@ import javax.xml.bind.JAXBContext
  * Created by jtlie on 3/31/2017.
  */
 
+enum class TranslationType {
+    NORMAL, PLURALS, ARRAYS
+}
+
+fun processXMLToCSV(readPath: String, writePath: String, translationType: TranslationType) {
+    val list = getHeadersFromDirectory(readPath)
+    arrayXmlToDatabase(list)
+    val tableName = when (translationType) {
+        TranslationType.NORMAL -> "arrays_translation"
+        TranslationType.PLURALS -> "plurals_translation"
+        TranslationType.ARRAYS -> "translation"
+        else -> "translation"
+    }
+    databaseToCSV(list, writePath, arrayOf("name"), tableName)
+}
+
 fun getHeadersFromDirectory(path: String = "."): ArrayList<String> {
     val currentPath = Paths.get(path).toAbsolutePath().normalize().toString()
     val folder = File(currentPath)

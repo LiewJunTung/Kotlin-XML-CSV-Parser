@@ -104,12 +104,5 @@ class ReadXMLTest {
 //            writeFromXML("", headers.get(0), aResources.aStringList)
         }
 
-        @Test
-        @DisplayName("run read XML Folders")
-        fun readXmlFolder() {
-            val list = getHeadersFromDirectory()
-            stringXmlToDatabase(list, "string.xml")
-            databaseToCSV(list, "strings.csv", arrayOf("name", "translatable"), "translation")
-        }
     }
 }
