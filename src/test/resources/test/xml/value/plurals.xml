@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resources>
+    <plurals name="text_dogs">
+        <item quantity="zero">no dog</item>
+        <item quantity="one">one dog</item>
+        <item quantity="many">%d dogs</item>
+    </plurals>
+    <plurals name="text_cats">
+        <item quantity="zero">no cat</item>
+        <item quantity="one">one cat</item>
+        <item quantity="many">%d cats</item>
+    </plurals>
+    <plurals name="text_guys">
+        <item quantity="zero">no guy</item>
+        <item quantity="one">one guy</item>
+        <item quantity="many">%d guys</item>
+    </plurals>
+</resources>
