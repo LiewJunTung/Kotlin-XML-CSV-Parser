@@ -12,6 +12,30 @@ import javax.xml.bind.Marshaller
 /**
  * Created by jtlie on 3/30/2017.
  */
+
+
+fun processCSVToXML(readPath: String, writePath: String, translationType: TranslationType) {
+    val dbName = "build/xml_translation"
+    val tableName = when (translationType) {
+        TranslationType.NORMAL -> "translation"
+        TranslationType.PLURALS -> "plural_translation"
+        TranslationType.ARRAYS -> "arrays_translation"
+        else -> "translation"
+    }
+    try {
+        val headers = csvToDatabase(readPath, dbName, tableName, true)
+        when (translationType) {
+            TranslationType.NORMAL -> databaseToStringXML(headers)
+            TranslationType.PLURALS -> databaseToPluralXML(headers)
+            TranslationType.ARRAYS -> databaseToArrayXML(headers)
+            else -> databaseToStringXML(headers)
+        }
+        databaseToArrayXML(headers)
+    } catch (e: InvalidSourceException) {
+        println(e.message)
+    }
+}
+
 fun stringCsvToDatabase(path: String): List<String>? {
     val dbName = "build/xml_translation"
     val tableName = "translation"
