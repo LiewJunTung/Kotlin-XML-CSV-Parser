@@ -48,7 +48,7 @@ fun getHeadersFromDirectory(path: String = "."): ArrayList<String> {
 }
 
 fun stringXmlToDatabase(headers: ArrayList<String>) {
-    val dbName = "build/xml_translation"
+    val dbName = "xml_translation"
     val tableName = "translation"
     lock(dbName, tableName) { statement, connection ->
         val createHeaderString = headers.joinToString { "${it} string" }.replace('-', '_')
@@ -88,7 +88,7 @@ fun stringXmlToDatabase(headers: ArrayList<String>) {
 }
 
 fun pluralXmlToDatabase(headers: ArrayList<String>) {
-    val dbName = "build/xml_translation"
+    val dbName = "xml_translation"
     val tableName = "plurals_translation"
     lock(dbName, tableName) { statement, connection ->
         //TODO
@@ -131,7 +131,7 @@ fun pluralXmlToDatabase(headers: ArrayList<String>) {
 }
 
 fun arrayXmlToDatabase(headers: ArrayList<String>) {
-    val dbName = "build/xml_translation"
+    val dbName = "xml_translation"
     val tableName = "arrays_translation"
     lock(dbName, tableName) { statement, connection ->
         //TODO
@@ -175,7 +175,7 @@ fun arrayXmlToDatabase(headers: ArrayList<String>) {
 }
 
 fun databaseToCSV(headers: ArrayList<String>, fileName: String, columns: Array<String>, tableName: String) {
-    val dbName = "build/xml_translation"
+    val dbName = "xml_translation"
     lock(dbName, tableName) { statement, connection ->
         for ((index, value) in columns.withIndex()) {
             headers.add(index, value)
