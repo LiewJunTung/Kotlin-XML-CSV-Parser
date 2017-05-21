@@ -36,28 +36,28 @@ class WriteCSVTest {
     @DisplayName("run read XML Folders")
     fun readXmlFolder() {
         val list = getHeadersFromDirectory()
-        stringXmlToDatabase(list)
-        databaseToCSV(list, "strings.csv", arrayOf("name", "translatable"), "translation")
+        stringXmlToDatabase(".", list)
+        databaseToCSV(list, ".", "strings.csv", arrayOf("name", "translatable"), "translation")
     }
 
     @Test
     fun writeArrayCSV() {
         val list = getHeadersFromDirectory()
-        arrayXmlToDatabase(list)
-        databaseToCSV(list, "build/try-arrays.csv", arrayOf("name"), "arrays_translation")
+        arrayXmlToDatabase(".", list)
+        databaseToCSV(list, ".", "build/try-arrays.csv", arrayOf("name"), "arrays_translation")
     }
 
     @Test
     fun writePluralsCSV() {
         val list = getHeadersFromDirectory()
-        pluralXmlToDatabase(list)
-        databaseToCSV(list, "build/try-plurals.csv", arrayOf("name"), "plurals_translation")
+        pluralXmlToDatabase(".", list)
+        databaseToCSV(list, ".", "build/try-plurals.csv", arrayOf("name"), "plurals_translation")
     }
 
     @Test
     fun processWriteCSV(){
-        processXMLToCSV(".", "build", TranslationType.NORMAL)
-        processXMLToCSV(".", "build", TranslationType.ARRAYS)
-        processXMLToCSV(".", "build", TranslationType.PLURALS)
+        processXMLToCSV("./src/test/resources/test/xml", "./src/test/resources/result/csv", TranslationType.NORMAL)
+        processXMLToCSV("./src/test/resources/test/xml", "./src/test/resources/result/csv", TranslationType.ARRAYS)
+        processXMLToCSV("./src/test/resources/test/xml", "./src/test/resources/result/csv", TranslationType.PLURALS)
     }
 }

@@ -22,17 +22,17 @@ fun processXMLToCSV(readPath: String, writePath: String, translationType: Transl
     var tableName = "translation"
     var fileName = "strings"
     if (translationType == TranslationType.ARRAYS) {
-        arrayXmlToDatabase(list)
+        arrayXmlToDatabase(readPath, list)
         tableName = "arrays_translation"
         fileName = "arrays"
     } else if (translationType == TranslationType.PLURALS) {
-        pluralXmlToDatabase(list)
+        pluralXmlToDatabase(readPath, list)
         tableName = "plurals_translation"
         fileName = "plurals"
     } else {
-        stringXmlToDatabase(list)
+        stringXmlToDatabase(readPath, list)
     }
-    databaseToCSV(list, "$writePath/$fileName.csv", arrayOf("name"), tableName)
+    databaseToCSV(list, writePath, "$writePath/$fileName.csv", arrayOf("name"), tableName)
 }
 
 fun getHeadersFromDirectory(path: String = "."): ArrayList<String> {
@@ -47,7 +47,7 @@ fun getHeadersFromDirectory(path: String = "."): ArrayList<String> {
     return lists
 }
 
-fun stringXmlToDatabase(headers: ArrayList<String>) {
+fun stringXmlToDatabase(readPath: String, headers: ArrayList<String>) {
     val dbName = "xml_translation"
     val tableName = "translation"
     lock(dbName, tableName) { statement, connection ->
@@ -55,9 +55,9 @@ fun stringXmlToDatabase(headers: ArrayList<String>) {
         statement.executeUpdate("drop table if exists `$tableName`")
         statement.executeUpdate("create table `$tableName` (name string, translatable string, ${createHeaderString})")
         for (header in headers) {
-            val file = File("$header${File.separator}string.xml")
-            var aResources:AStringResource
-            if (!file.exists()){
+            val file = File("$readPath${File.separator}$header${File.separator}string.xml")
+            var aResources: AStringResource
+            if (!file.exists()) {
                 aResources = AStringResource()
                 aResources.aStringList = ArrayList()
             } else {
@@ -87,7 +87,7 @@ fun stringXmlToDatabase(headers: ArrayList<String>) {
     }
 }
 
-fun pluralXmlToDatabase(headers: ArrayList<String>) {
+fun pluralXmlToDatabase(readPath: String, headers: ArrayList<String>) {
     val dbName = "xml_translation"
     val tableName = "plurals_translation"
     lock(dbName, tableName) { statement, connection ->
@@ -97,9 +97,9 @@ fun pluralXmlToDatabase(headers: ArrayList<String>) {
         statement.executeUpdate("create table `$tableName` (id INTEGER PRIMARY KEY, name string, quantity string, ${createHeaderString})")
         for (header in headers) {
             var base: Int = 0
-            val file = File("$header${File.separator}plurals.xml")
-            var aResources:APluralResource
-            if (file.exists()){
+            val file = File("$readPath${File.separator}$header${File.separator}plurals.xml")
+            var aResources: APluralResource
+            if (file.exists()) {
                 val jaxbContext = JAXBContext.newInstance(APluralResource::class.java)
                 val jaxbUnmarchaller = jaxbContext.createUnmarshaller()
                 aResources = jaxbUnmarchaller.unmarshal(file) as APluralResource
@@ -130,7 +130,7 @@ fun pluralXmlToDatabase(headers: ArrayList<String>) {
     }
 }
 
-fun arrayXmlToDatabase(headers: ArrayList<String>) {
+fun arrayXmlToDatabase(readPath: String, headers: ArrayList<String>) {
     val dbName = "xml_translation"
     val tableName = "arrays_translation"
     lock(dbName, tableName) { statement, connection ->
@@ -141,9 +141,9 @@ fun arrayXmlToDatabase(headers: ArrayList<String>) {
         statement.executeUpdate("create table `$tableName` (id INTEGER PRIMARY KEY, name string, ${createHeaderString})")
         for (header in headers) {
             var base: Int = 0
-            val file = File("$header${File.separator}arrays.xml")
-            var aResources:AArrayResource
-            if (file.exists()){
+            val file = File("$readPath${File.separator}$header${File.separator}arrays.xml")
+            var aResources: AArrayResource
+            if (file.exists()) {
                 val jaxbContext = JAXBContext.newInstance(AArrayResource::class.java)
                 val jaxbUnmarchaller = jaxbContext.createUnmarshaller()
                 aResources = jaxbUnmarchaller.unmarshal(file) as AArrayResource
@@ -174,8 +174,12 @@ fun arrayXmlToDatabase(headers: ArrayList<String>) {
     }
 }
 
-fun databaseToCSV(headers: ArrayList<String>, fileName: String, columns: Array<String>, tableName: String) {
+fun databaseToCSV(headers: ArrayList<String>, folderPath: String, fileName: String, columns: Array<String>, tableName: String) {
     val dbName = "xml_translation"
+    val folder = File(folderPath)
+    if (!folder.exists()) {
+        folder.mkdirs()
+    }
     lock(dbName, tableName) { statement, connection ->
         for ((index, value) in columns.withIndex()) {
             headers.add(index, value)
