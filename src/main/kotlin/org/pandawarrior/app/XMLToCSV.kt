@@ -13,8 +13,8 @@ import javax.xml.bind.JAXBContext
  * Created by jtlie on 3/31/2017.
  */
 
-fun getHeadersFromDirectory(): ArrayList<String> {
-    val currentPath = Paths.get(".").toAbsolutePath().normalize().toString()
+fun getHeadersFromDirectory(path: String = "."): ArrayList<String> {
+    val currentPath = Paths.get(path).toAbsolutePath().normalize().toString()
     val folder = File(currentPath)
     val lists = ArrayList<String>()
     for (file in folder.listFiles()) {

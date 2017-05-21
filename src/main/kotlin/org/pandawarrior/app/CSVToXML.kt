@@ -38,26 +38,30 @@ fun csvToDatabase(path: String, dbName: String, tableName: String, isString: Boo
     val headerList = headerMap.keys
     //save record line by line
     !checkHeader(headerList.toList(), isString)
-    lock(dbName, tableName) { statement, connection ->
-        val createHeaderString = headerList.joinToString { "${it} string" }.replace('-', '_')
+    try {
+        lock(dbName, tableName) { statement, connection ->
+            val createHeaderString = headerList.joinToString { "${it} string" }.replace('-', '_')
 
-        val headerString = headerList.joinToString { it }.replace('-', '_')
-        statement.executeUpdate("drop table if exists `$tableName`")
-        statement.executeUpdate("create table `$tableName` (${createHeaderString})")
+            val headerString = headerList.joinToString { it }.replace('-', '_')
+            statement.executeUpdate("drop table if exists `$tableName`")
+            statement.executeUpdate("create table `$tableName` (${createHeaderString})")
 
-        for (record: CSVRecord in csvParser) {
-            val hValues = headerMap.values.map {
-                record.get(it)
+            for (record: CSVRecord in csvParser) {
+                val hValues = headerMap.values.map {
+                    record.get(it)
+                }
+                val pholder = hValues.map {
+                    "?"
+                }.joinToString { it }
+                val stmt = connection.prepareStatement("insert into $tableName (${headerString}) values($pholder)")
+                for ((index, value) in hValues.withIndex()) {
+                    stmt.setString(index + 1, value)
+                }
+                stmt.executeUpdate()
             }
-            val pholder = hValues.map {
-                "?"
-            }.joinToString { it }
-            val stmt = connection.prepareStatement("insert into $tableName (${headerString}) values($pholder)")
-            for ((index, value) in hValues.withIndex()) {
-                stmt.setString(index + 1, value)
-            }
-            stmt.executeUpdate()
         }
+    } catch (e: ArrayIndexOutOfBoundsException) {
+        throw InvalidSourceException("Invalid CSV format, check if there are any incomplete data.")
     }
     return headerList.toList().subList(1, headerList.toList().lastIndex + 1)
 }

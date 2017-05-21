@@ -97,9 +97,9 @@ class WriteXMLTest {
     @DisplayName("Test Write Plural XML Functionality")
     inner class testWritePluralXMLFile {
         @Test
-        fun writeFile(){
+        fun writeFile() {
             val headers = pluralsCsvToDatabase("test-plural.csv")
-            if (headers == null){
+            if (headers == null) {
                 throw Exception("Invalid headers")
             }
             databaseToPluralXML(headers)
@@ -111,11 +111,16 @@ class WriteXMLTest {
     inner class testWriteArraysXMLFile {
         @Test
         fun writeFile() {
-            val headers = arraysCsvToDatabase("test-array.csv")
-            if (headers == null) {
-                throw Exception("Invalid headers")
+            try {
+                val headers = arraysCsvToDatabase("test-array.csv")
+                if (headers == null) {
+                    throw Exception("Invalid headers")
+                }
+                databaseToArrayXML(headers)
+            } catch (e: InvalidSourceException) {
+                println(e.message)
             }
-            databaseToArrayXML(headers)
+
         }
     }
 }

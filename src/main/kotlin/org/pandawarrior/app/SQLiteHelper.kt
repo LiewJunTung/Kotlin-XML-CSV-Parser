@@ -28,8 +28,7 @@ inline fun lock(dbName: String, tableName: String, body: (statement: Statement, 
     } catch (exception: SQLException) {
         System.err.println(exception.message)
         exception.printStackTrace()
-    } finally
-    {
+    } finally {
         try
         {
             if(connection != null)
@@ -60,3 +59,5 @@ fun writeFromXML(dbName: String = "", tableName: String, currentHeader: String, 
         }
     }
 }
+
+class InvalidSourceException(override val message: String = "Invalid Source Format") : Exception()
