@@ -1,3 +1,5 @@
 # Android-XML-CSV-Converter-2
 
-This is a rewrite of [Android Strings CSV XML Converter](https://github.com/LiewJunTung/Android-strings-xml-csv-converter)
+Android xml-csv resource translation library for 
+ [Android Strings CSV XML Converter](https://github.com/LiewJunTung/Android-strings-xml-csv-converter)
+ plugin.
