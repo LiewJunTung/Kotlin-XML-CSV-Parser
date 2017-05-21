@@ -20,13 +20,16 @@ enum class TranslationType {
 fun processXMLToCSV(readPath: String, writePath: String, translationType: TranslationType) {
     val list = getHeadersFromDirectory(readPath)
     arrayXmlToDatabase(list)
-    val tableName = when (translationType) {
-        TranslationType.NORMAL -> "arrays_translation"
-        TranslationType.PLURALS -> "plurals_translation"
-        TranslationType.ARRAYS -> "translation"
-        else -> "translation"
+    var tableName = "translation"
+    var fileName = "strings.csv"
+    if (translationType == TranslationType.ARRAYS) {
+        tableName = "arrays_translation"
+        fileName = "arrays.csv"
+    } else if (translationType == TranslationType.PLURALS) {
+        tableName = "plurals_translation"
+        fileName = "plurals.csv"
     }
-    databaseToCSV(list, writePath, arrayOf("name"), tableName)
+    databaseToCSV(list, "$writePath/$fileName.csv", arrayOf("name"), tableName)
 }
 
 fun getHeadersFromDirectory(path: String = "."): ArrayList<String> {
