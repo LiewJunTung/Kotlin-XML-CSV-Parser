@@ -85,7 +85,7 @@ class WriteXMLTest {
 
         @Test
         fun writeFile() {
-            val headers = stringCsvToDatabase("test.csv")
+            val headers = stringCsvToDatabase("./src/test/resources/test/csv/test.csv")
             if (headers == null) {
                 throw Exception("Invalid headers")
             }
@@ -98,11 +98,11 @@ class WriteXMLTest {
     inner class testWritePluralXMLFile {
         @Test
         fun writeFile() {
-            val headers = pluralsCsvToDatabase("test-plural.csv")
+            val headers = pluralsCsvToDatabase("./src/test/resources/test/csv/test-plural.csv")
             if (headers == null) {
                 throw Exception("Invalid headers")
             }
-            databaseToPluralXML(headers, "build")
+            databaseToPluralXML(headers, "./src/test/resources/result/xml")
         }
     }
 
@@ -112,11 +112,11 @@ class WriteXMLTest {
         @Test
         fun writeFile() {
             try {
-                val headers = arraysCsvToDatabase("test-array.csv")
+                val headers = arraysCsvToDatabase("./src/test/resources/test/csv/test-array.csv")
                 if (headers == null) {
                     throw Exception("Invalid headers")
                 }
-                databaseToArrayXML(headers, "build")
+                databaseToArrayXML(headers, "./src/test/resources/result/xml")
             } catch (e: InvalidSourceException) {
                 println(e.message)
             }
