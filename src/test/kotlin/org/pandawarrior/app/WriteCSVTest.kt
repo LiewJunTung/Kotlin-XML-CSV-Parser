@@ -55,7 +55,7 @@ class WriteCSVTest {
     }
 
     @Test
-    fun processWriteCSV(){
+    fun writeCSVProcess(){
         processXMLToCSV("./src/test/resources/test/xml", "./src/test/resources/result/csv", TranslationType.NORMAL)
         processXMLToCSV("./src/test/resources/test/xml", "./src/test/resources/result/csv", TranslationType.ARRAYS)
         processXMLToCSV("./src/test/resources/test/xml", "./src/test/resources/result/csv", TranslationType.PLURALS)

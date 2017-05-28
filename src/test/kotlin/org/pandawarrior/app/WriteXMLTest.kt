@@ -123,7 +123,7 @@ class WriteXMLTest {
         }
 
         @Test
-        fun writeCSVProcess(){
+        fun writeXMLProcess(){
             processCSVToXML("./src/test/resources/test/csv/test.csv", "./src/test/resources/result/xml", TranslationType.NORMAL)
             processCSVToXML("./src/test/resources/test/csv/test-plural.csv", "./src/test/resources/result/xml", TranslationType.PLURALS)
             processCSVToXML("./src/test/resources/test/csv/test-array.csv", "./src/test/resources/result/xml", TranslationType.ARRAYS)

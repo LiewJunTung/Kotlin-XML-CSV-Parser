@@ -57,7 +57,7 @@ fun stringXmlToDatabase(readPath: String, headers: ArrayList<String>) {
 
         statement.executeUpdate(createTable)
         for (header in headers) {
-            val file = File("$readPath${File.separator}$header${File.separator}string.xml")
+            val file = File("$readPath${File.separator}$header${File.separator}strings.xml")
             var aResources: AStringResource
             if (!file.exists()) {
                 aResources = AStringResource()
