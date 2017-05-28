@@ -138,7 +138,7 @@ fun databaseToStringXML(headerList: List<String>, writePath: String) {
                 }
             }
             resources.aStringList = stringList
-            writeStringResourceXML(resources, "$writePath/$header", "$writePath/$header/string.xml")
+            writeStringResourceXML(resources, "$writePath/$header", "$writePath/$header/strings.xml")
         }
     }
 }
