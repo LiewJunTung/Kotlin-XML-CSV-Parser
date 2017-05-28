@@ -39,11 +39,11 @@ import java.util.concurrent.CopyOnWriteArrayList
  * Created by jtlie on 3/15/2017.
  */
 class ReadCSVTest {
-    val CSV = "name,translatable,value,value-zh_CN\n" +
+    val CSV = "name,translatable,values,values-zh_CN\n" +
             "text_dog,true,Dog,狗\n" +
             "text_cat,true,\"Cat ,Cat\",猫"
 
-    val PLURAL = "name,quantity,value,value-es\n" +
+    val PLURAL = "name,quantity,values,values-es\n" +
             "text_dogs,zero,no dog,no perro\n" +
             "text_dogs,one,one dog,uno perro\n" +
             "text_dogs,many,%d dogs,%d perros"

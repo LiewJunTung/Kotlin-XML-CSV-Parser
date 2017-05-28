@@ -100,7 +100,7 @@ class ReadXMLTest {
             if (catString != null){
                 assertNull(catString.translatable)
             }
-            val headers:Array<String> = arrayOf("value")
+            val headers:Array<String> = arrayOf("values")
 //            writeFromXML("", headers.get(0), aResources.aStringList)
         }
 

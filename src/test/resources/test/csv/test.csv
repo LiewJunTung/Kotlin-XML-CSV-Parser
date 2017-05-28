@@ -1,4 +1,4 @@
-name,translatable,value,value-zh-CN,value-my,value-ru
+name,translatable,values,values-zh-CN,values-my,values-ru
 text_dog,true,Dog Dog,狗,anjing,собака
 text_cat,true,Cat,mao,kucing,Кот
 text_jeab,true,Chicken,鸡,ayam,курица

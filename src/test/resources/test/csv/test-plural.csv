@@ -1,4 +1,4 @@
-name,quantity,value,value-es
+name,quantity,values,values-es
 text_dogs,zero,no dog,no perro
 text_dogs,one,one dog,uno perro
 text_dogs,many,%d dogs,%d perros

@@ -40,7 +40,7 @@ fun getHeadersFromDirectory(path: String = "."): ArrayList<String> {
     val folder = File(currentPath)
     val lists = ArrayList<String>()
     for (file in folder.listFiles()) {
-        if (file.isDirectory && file.name.contains("value")) {
+        if (file.isDirectory && file.name.contains("values")) {
             lists.add(file.name)
         }
     }
@@ -51,9 +51,11 @@ fun stringXmlToDatabase(readPath: String, headers: ArrayList<String>) {
     val dbName = "xml_translation"
     val tableName = "translation"
     lock(dbName, tableName) { statement, connection ->
-        val createHeaderString = headers.joinToString { "${it} string" }.replace('-', '_')
+        val createHeaderString = headers.joinToString { "`${it}` string" }.replace('-', '_')
         statement.executeUpdate("drop table if exists `$tableName`")
-        statement.executeUpdate("create table `$tableName` (name string, translatable string, ${createHeaderString})")
+        val createTable = "create table `$tableName` (name string, translatable string, ${createHeaderString})"
+
+        statement.executeUpdate(createTable)
         for (header in headers) {
             val file = File("$readPath${File.separator}$header${File.separator}string.xml")
             var aResources: AStringResource
@@ -71,12 +73,12 @@ fun stringXmlToDatabase(readPath: String, headers: ArrayList<String>) {
             }
             var aStringList: List<AString> = aResources.aStringList!!
             for (aString in aStringList) {
-                val stmt = connection.prepareStatement("UPDATE `$tableName` SET ${header.replace('-', '_')} = ? WHERE name= ?")
+                val stmt = connection.prepareStatement("UPDATE `$tableName` SET `${header.replace('-', '_')}` = ? WHERE name= ?")
                 stmt.setString(1, aString.text)
                 stmt.setString(2, aString.name)
                 val updateCount = stmt.executeUpdate()
                 if (updateCount < 1) {
-                    val stmt = connection.prepareStatement("INSERT INTO `$tableName` (name, translatable, ${header.replace('-', '_')}) VALUES(?, ?, ?)")
+                    val stmt = connection.prepareStatement("INSERT INTO `$tableName` (name, translatable, `${header.replace('-', '_')}`) VALUES(?, ?, ?)")
                     stmt.setString(1, aString.name)
                     stmt.setString(2, aString.translatable)
                     stmt.setString(3, aString.text)
@@ -92,7 +94,7 @@ fun pluralXmlToDatabase(readPath: String, headers: ArrayList<String>) {
     val tableName = "plurals_translation"
     lock(dbName, tableName) { statement, connection ->
         //TODO
-        val createHeaderString = headers.joinToString { "${it} string" }.replace('-', '_')
+        val createHeaderString = headers.joinToString { "`${it}` string" }.replace('-', '_')
         statement.executeUpdate("drop table if exists `$tableName`")
         statement.executeUpdate("create table `$tableName` (id INTEGER PRIMARY KEY, name string, quantity string, ${createHeaderString})")
         for (header in headers) {
@@ -111,14 +113,14 @@ fun pluralXmlToDatabase(readPath: String, headers: ArrayList<String>) {
             for (aPlural in aPluralList) {
                 for ((index, aPluralItem) in aPlural.aPluralItems.withIndex()) {
                     base += 1
-                    val stmt = connection.prepareStatement("UPDATE `$tableName` SET ${header.replace('-', '_')} = ?, quantity = ? WHERE name= ? AND id=?")
+                    val stmt = connection.prepareStatement("UPDATE `$tableName` SET `${header.replace('-', '_')}` = ?, quantity = ? WHERE name= ? AND id=?")
                     stmt.setString(1, aPluralItem.text)
                     stmt.setString(2, aPluralItem.quantity)
                     stmt.setString(3, aPlural.name)
                     stmt.setInt(4, base)
                     val updateCount = stmt.executeUpdate()
                     if (updateCount < 1) {
-                        val stmt = connection.prepareStatement("INSERT INTO `$tableName` (name, quantity, ${header.replace('-', '_')}) VALUES(?, ?, ?)")
+                        val stmt = connection.prepareStatement("INSERT INTO `$tableName` (name, quantity, `${header.replace('-', '_')}`) VALUES(?, ?, ?)")
                         stmt.setString(1, aPlural.name)
                         stmt.setString(2, aPluralItem.quantity)
                         stmt.setString(3, aPluralItem.text)
@@ -136,7 +138,7 @@ fun arrayXmlToDatabase(readPath: String, headers: ArrayList<String>) {
     lock(dbName, tableName) { statement, connection ->
         //TODO
 
-        val createHeaderString = headers.joinToString { "${it} string" }.replace('-', '_')
+        val createHeaderString = headers.joinToString { "`${it}` string" }.replace('-', '_')
         statement.executeUpdate("drop table if exists `$tableName`")
         statement.executeUpdate("create table `$tableName` (id INTEGER PRIMARY KEY, name string, ${createHeaderString})")
         for (header in headers) {
@@ -157,13 +159,13 @@ fun arrayXmlToDatabase(readPath: String, headers: ArrayList<String>) {
             for (aArray in aArrayList) {
                 for ((index, aArrayItem) in aArray.aArrayItem.withIndex()) {
                     base += 1
-                    val stmt = connection.prepareStatement("UPDATE `$tableName` SET ${header.replace('-', '_')} = ? WHERE name= ? AND id=?")
+                    val stmt = connection.prepareStatement("UPDATE `$tableName` SET `${header.replace('-', '_')}` = ? WHERE name= ? AND id=?")
                     stmt.setString(1, aArrayItem.text)
                     stmt.setString(2, aArray.name)
                     stmt.setInt(3, base)
                     val updateCount = stmt.executeUpdate()
                     if (updateCount < 1) {
-                        val stmt = connection.prepareStatement("INSERT INTO `$tableName` (name, ${header.replace('-', '_')}) VALUES(?, ?)")
+                        val stmt = connection.prepareStatement("INSERT INTO `$tableName` (name, `${header.replace('-', '_')}`) VALUES(?, ?)")
                         stmt.setString(1, aArray.name)
                         stmt.setString(2, aArrayItem.text)
                         stmt.executeUpdate()

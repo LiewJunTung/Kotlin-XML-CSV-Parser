@@ -68,9 +68,9 @@ fun csvToDatabase(path: String, dbName: String, tableName: String, isString: Boo
     !checkHeader(headerList.toList(), isString)
     try {
         lock(dbName, tableName) { statement, connection ->
-            val createHeaderString = headerList.joinToString { "${it} string" }.replace('-', '_')
+            val createHeaderString = headerList.joinToString { "`${it}` string" }.replace('-', '_')
 
-            val headerString = headerList.joinToString { it }.replace('-', '_')
+            val headerString = headerList.joinToString { "`$it`" }.replace('-', '_')
             statement.executeUpdate("drop table if exists `$tableName`")
             statement.executeUpdate("create table `$tableName` (${createHeaderString})")
 
@@ -102,7 +102,7 @@ fun checkHeader(headerList: List<String>, isString: Boolean = true): Boolean {
     if (headerList.get(0) == "name" &&
             (isString && headerList.get(1) == "translatable" || !isString)) {
         for (header in headerList.subList(2, headerList.toList().lastIndex + 1)) {
-            if (!header.contains("value")) {
+            if (!header.contains("values")) {
                 throw Exception("Wrong format: does not contain value-* (example: value, value-zh-CN) column")
             }
         }
@@ -119,7 +119,7 @@ fun databaseToStringXML(headerList: List<String>, writePath: String) {
     lock(dbName, tableName) { statement, connection ->
         for (header in headerList) {
             val head = header.replace('-', '_')
-            val cursor = statement.executeQuery("select name, translatable, ${head} from $tableName")
+            val cursor = statement.executeQuery("select name, translatable, `${head}` from $tableName")
             println("select name, ${head} from $tableName")
             val resources = AStringResource()
             val stringList = ArrayList<AString>()
@@ -133,7 +133,7 @@ fun databaseToStringXML(headerList: List<String>, writePath: String) {
                 if (translatable == "false") {
                     textString.translatable = translatable
                 }
-                if (translatable == "true" || (translatable == "false" && header == "value")) {
+                if (translatable == "true" || (translatable == "false" && header == "values")) {
                     stringList.add(textString)
                 }
             }
@@ -165,7 +165,7 @@ fun databaseToPluralXML(headerList: List<String>, writePath: String) {
         var name: String = ""
         for (header in headerList) {
             val head = header.replace('-', '_')
-            val cursor = statement.executeQuery("select name, quantity, ${head} from $tableName")
+            val cursor = statement.executeQuery("select name, quantity, `${head}` from $tableName")
             val resources = APluralResource()
             val pluralList = ArrayList<APlural>()
             var pluralItemList = ArrayList<APluralItem>()
@@ -229,7 +229,7 @@ fun databaseToArrayXML(headerList: List<String>, writePath: String) {
         var name: String = ""
         for (header in headerList) {
             val head = header.replace('-', '_')
-            val cursor = statement.executeQuery("select name, ${head} from $tableName")
+            val cursor = statement.executeQuery("select name, `${head}` from $tableName")
             val resources = AArrayResource()
             val aArrayList = ArrayList<AArray>()
             var aArrayItemList = ArrayList<AArrayItem>()
